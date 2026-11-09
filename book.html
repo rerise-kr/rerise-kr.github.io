@@ -13,7 +13,7 @@
 <div class="card"><div class="lab">날짜</div><div class="days" id="days"></div></div>
 <div class="card"><div class="lab">시간</div><div class="times" id="times"></div></div>
 <button class="btn" id="go" disabled>이 시간으로 예약하기</button>
-<div class="note">평일 오전 10시 ~ 오후 7시 · 다른 번호로는 연락드리지 않습니다</div>
+<div class="note">평일 오전 9시 ~ 저녁 8시 · 다른 번호로는 연락드리지 않습니다</div>
 </div>
 <script>
 (function(){
@@ -21,9 +21,9 @@ var API='https://kpac-crm-server-production.up.railway.app/api/debt/book';
 var k=new URLSearchParams(location.search).get('k')||'';
 var W=['일','월','화','수','목','금','토'];var selD=null, selT=null;
 function fmt(dt){var h=dt.getHours(),m=dt.getMinutes();var ap=h<12?'오전':'오후';var hh=h%12||12;return (dt.getMonth()+1)+'월 '+dt.getDate()+'일 '+ap+' '+hh+'시'+(m?' '+m+'분':'');}
-var days=[];var d=new Date();var nowH=d.getHours()*60+d.getMinutes();if(nowH>=18*60)d.setDate(d.getDate()+1);d.setHours(0,0,0,0);while(days.length<7){var x=new Date(d);if(x.getDay()!==0&&x.getDay()!==6)days.push(x);d.setDate(d.getDate()+1);}
+var days=[];var d=new Date();var nowH=d.getHours()*60+d.getMinutes();if(nowH>=19*60)d.setDate(d.getDate()+1);d.setHours(0,0,0,0);while(days.length<7){var x=new Date(d);if(x.getDay()!==0&&x.getDay()!==6)days.push(x);d.setDate(d.getDate()+1);}
 var dw=document.getElementById('days');days.forEach(function(x,i){var e=document.createElement('div');e.className='d';e.innerHTML='<span>'+(i===0&&x.toDateString()===new Date().toDateString()?'오늘':W[x.getDay()])+'</span><b>'+x.getDate()+'</b><span>'+(x.getMonth()+1)+'월</span>';e.onclick=function(){selD=x;selT=null;[].forEach.call(dw.children,function(c){c.classList.remove('on')});e.classList.add('on');drawT();check();};dw.appendChild(e);});
-function drawT(){var tw=document.getElementById('times');tw.innerHTML='';if(!selD)return;for(var h=10;h<19;h++){for(var m=0;m<60;m+=30){(function(h,m){var t=new Date(selD);t.setHours(h,m,0,0);var e=document.createElement('div');var past=t.getTime()<Date.now()+30*60000;e.className='t'+(past?' off':'');e.textContent=(h<12?'오전 ':'오후 ')+((h%12)||12)+':'+(m?'30':'00');if(!past)e.onclick=function(){selT=t;[].forEach.call(tw.children,function(c){c.classList.remove('on')});e.classList.add('on');check();};tw.appendChild(e);})(h,m);}}}
+function drawT(){var tw=document.getElementById('times');tw.innerHTML='';if(!selD)return;for(var h=9;h<20;h++){for(var m=0;m<60;m+=30){(function(h,m){var t=new Date(selD);t.setHours(h,m,0,0);var e=document.createElement('div');var past=t.getTime()<Date.now()+30*60000;e.className='t'+(past?' off':'');e.textContent=(h<12?'오전 ':'오후 ')+((h%12)||12)+':'+(m?'30':'00');if(!past)e.onclick=function(){selT=t;[].forEach.call(tw.children,function(c){c.classList.remove('on')});e.classList.add('on');check();};tw.appendChild(e);})(h,m);}}}
 function check(){document.getElementById('go').disabled=!(selD&&selT);}
 if(dw.firstChild)dw.firstChild.click();
 if(k){fetch(API+'?k='+encodeURIComponent(k)).then(function(r){return r.json()}).then(function(j){if(j&&j.ok&&j.name){document.getElementById('hi').textContent=j.name+'님, 통화 시간 예약';}}).catch(function(){});}
