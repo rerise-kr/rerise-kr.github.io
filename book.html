@@ -1,0 +1,35 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>통화 시간 예약</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>*{box-sizing:border-box}body{margin:0;font-family:"Pretendard Variable",Pretendard,"Malgun Gothic",sans-serif;background:#f5f6f8;color:#111827}
+.w{max-width:440px;margin:0 auto;padding:28px 18px 40px}h1{font-size:22px;margin:6px 0 6px}p.s{color:#4b5563;font-size:15px;margin:0 0 22px;line-height:1.6}
+.card{background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:18px;margin-bottom:14px}.lab{font-size:13px;color:#6b7280;margin-bottom:10px;font-weight:600}
+.days{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}.d{flex:0 0 auto;border:1px solid #e5e7eb;border-radius:12px;padding:10px 12px;text-align:center;cursor:pointer;min-width:62px;background:#fff}.d b{display:block;font-size:17px}.d span{font-size:12px;color:#6b7280}
+.d.on{background:#0a1230;border-color:#0a1230;color:#fff}.d.on span{color:#cbd5e1}
+.times{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.t{border:1px solid #e5e7eb;border-radius:10px;padding:11px 0;text-align:center;font-size:15px;cursor:pointer;background:#fff}.t.on{background:#0a1230;color:#fff;border-color:#0a1230}.t.off{color:#c0c4cc;background:#f3f4f6;cursor:default}
+.btn{width:100%;border:0;border-radius:12px;padding:16px;font-size:17px;font-weight:700;background:#0a1230;color:#fff;cursor:pointer}.btn:disabled{background:#c7cbd3}
+.done{text-align:center;padding:30px 10px}.ok{width:48px;height:48px;border-radius:50%;background:#0a1230;color:#fff;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-weight:700;font-size:20px}.note{font-size:13px;color:#6b7280;text-align:center;margin-top:12px}</style></head><body>
+<div class="w" id="app">
+<h1 id="hi">통화 시간 예약</h1><p class="s">편하신 날짜와 시간을 고르시면, 그 시간에 담당자가 연락드립니다.</p>
+<div class="card"><div class="lab">날짜</div><div class="days" id="days"></div></div>
+<div class="card"><div class="lab">시간</div><div class="times" id="times"></div></div>
+<button class="btn" id="go" disabled>이 시간으로 예약하기</button>
+<div class="note">평일 오전 10시 ~ 오후 7시 · 다른 번호로는 연락드리지 않습니다</div>
+</div>
+<script>
+(function(){
+var API='https://kpac-crm-server-production.up.railway.app/api/debt/book';
+var k=new URLSearchParams(location.search).get('k')||'';
+var W=['일','월','화','수','목','금','토'];var selD=null, selT=null;
+function fmt(dt){var h=dt.getHours(),m=dt.getMinutes();var ap=h<12?'오전':'오후';var hh=h%12||12;return (dt.getMonth()+1)+'월 '+dt.getDate()+'일 '+ap+' '+hh+'시'+(m?' '+m+'분':'');}
+var days=[];var d=new Date();var nowH=d.getHours()*60+d.getMinutes();if(nowH>=18*60)d.setDate(d.getDate()+1);d.setHours(0,0,0,0);while(days.length<7){var x=new Date(d);if(x.getDay()!==0&&x.getDay()!==6)days.push(x);d.setDate(d.getDate()+1);}
+var dw=document.getElementById('days');days.forEach(function(x,i){var e=document.createElement('div');e.className='d';e.innerHTML='<span>'+(i===0&&x.toDateString()===new Date().toDateString()?'오늘':W[x.getDay()])+'</span><b>'+x.getDate()+'</b><span>'+(x.getMonth()+1)+'월</span>';e.onclick=function(){selD=x;selT=null;[].forEach.call(dw.children,function(c){c.classList.remove('on')});e.classList.add('on');drawT();check();};dw.appendChild(e);});
+function drawT(){var tw=document.getElementById('times');tw.innerHTML='';if(!selD)return;for(var h=10;h<19;h++){for(var m=0;m<60;m+=30){(function(h,m){var t=new Date(selD);t.setHours(h,m,0,0);var e=document.createElement('div');var past=t.getTime()<Date.now()+30*60000;e.className='t'+(past?' off':'');e.textContent=(h<12?'오전 ':'오후 ')+((h%12)||12)+':'+(m?'30':'00');if(!past)e.onclick=function(){selT=t;[].forEach.call(tw.children,function(c){c.classList.remove('on')});e.classList.add('on');check();};tw.appendChild(e);})(h,m);}}}
+function check(){document.getElementById('go').disabled=!(selD&&selT);}
+if(dw.firstChild)dw.firstChild.click();
+if(k){fetch(API+'?k='+encodeURIComponent(k)).then(function(r){return r.json()}).then(function(j){if(j&&j.ok&&j.name){document.getElementById('hi').textContent=j.name+'님, 통화 시간 예약';}}).catch(function(){});}
+document.getElementById('go').onclick=function(){var b=this;b.disabled=true;b.textContent='예약하는 중...';var at=selT.toISOString();
+var fin=function(){document.getElementById('app').innerHTML='<div class="card done"><div class="ok">✓</div><h1>예약되었습니다</h1><p class="s" style="margin:8px 0 0">'+fmt(selT)+'에 담당자가 연락드리겠습니다.<br>시간 변경이 필요하시면 카카오톡 채팅방에 남겨 주십시오.</p></div>';};
+if(!k){fin();return;}
+fetch(API+'?k='+encodeURIComponent(k)+'&at='+encodeURIComponent(at),{method:'POST'}).then(function(r){return r.json()}).then(function(j){if(j&&j.ok)fin();else{b.disabled=false;b.textContent='이 시간으로 예약하기';alert('예약이 어렵습니다. 다른 시간을 골라 주십시오.');}}).catch(function(){b.disabled=false;b.textContent='이 시간으로 예약하기';alert('잠시 후 다시 시도해 주십시오.');});};
+})();
+</script></body></html>
