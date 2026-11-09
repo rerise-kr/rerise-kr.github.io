@@ -30,6 +30,6 @@ if(k){fetch(API+'?k='+encodeURIComponent(k)).then(function(r){return r.json()}).
 document.getElementById('go').onclick=function(){var b=this;b.disabled=true;b.textContent='예약하는 중...';var at=selT.toISOString();
 var fin=function(){document.getElementById('app').innerHTML='<div class="card done"><div class="ok">✓</div><h1>예약되었습니다</h1><p class="s" style="margin:8px 0 0">'+fmt(selT)+'에 담당자가 연락드리겠습니다.<br>시간 변경이 필요하시면 카카오톡 채팅방에 남겨 주십시오.</p></div>';};
 if(!k){fin();return;}
-fetch(API+'?k='+encodeURIComponent(k)+'&at='+encodeURIComponent(at),{method:'POST'}).then(function(r){return r.json()}).then(function(j){if(j&&j.ok)fin();else{b.disabled=false;b.textContent='이 시간으로 예약하기';alert('예약이 어렵습니다. 다른 시간을 골라 주십시오.');}}).catch(function(){b.disabled=false;b.textContent='이 시간으로 예약하기';alert('잠시 후 다시 시도해 주십시오.');});};
+fetch(API+'?k='+encodeURIComponent(k)+'&at='+encodeURIComponent(at),{method:'POST'}).then(function(r){return r.json()}).then(function(j){if(j&&j.ok)fin();else{b.disabled=false;b.textContent='이 시간으로 예약하기';alert((j&&j.error)||'예약이 어렵습니다. 다른 시간을 골라 주십시오.');}}).catch(function(){b.disabled=false;b.textContent='이 시간으로 예약하기';alert('잠시 후 다시 시도해 주십시오.');});};
 })();
 </script></body></html>
