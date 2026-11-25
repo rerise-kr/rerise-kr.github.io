@@ -5,5 +5,5 @@
 <script>
 (function(){var k=new URLSearchParams(location.search).get('k')||'';var done=function(){document.getElementById('ic').textContent='✓';document.getElementById('t').textContent='알림 수신이 중지되었습니다';document.getElementById('m').innerHTML='앞으로 진행 안내 알림을 보내드리지 않습니다.<br>다시 안내가 필요하시면 카카오톡 채널 채팅방에 남겨 주십시오.';};
 if(!k){done();return;}
-fetch('https://kpac-crm-server-production.up.railway.app/api/debt/stop?k='+encodeURIComponent(k),{method:'POST',mode:'cors'}).then(done,done);})();
+fetch('https://rerise-api.pages.dev/api/debt/stop?k='+encodeURIComponent(k),{method:'POST',mode:'cors'}).then(done,done);})();
 </script></body></html>

@@ -17,7 +17,7 @@
 </div>
 <script>
 (function(){
-var API='https://kpac-crm-server-production.up.railway.app/api/debt/book';
+var API='https://rerise-api.pages.dev/api/debt/book';
 var k=new URLSearchParams(location.search).get('k')||'';
 var W=['일','월','화','수','목','금','토'];var selD=null, selT=null;
 function fmt(dt){var h=dt.getHours(),m=dt.getMinutes();var ap=h<12?'오전':'오후';var hh=h%12||12;return (dt.getMonth()+1)+'월 '+dt.getDate()+'일 '+ap+' '+hh+'시'+(m?' '+m+'분':'');}
